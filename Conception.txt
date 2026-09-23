@@ -1,0 +1,99 @@
+	Formations
+		Nom
+		Type
+		Description
+	Conditions d'accès
+		Numero
+		Condition
+	Informations
+		Logo 
+		Numéro de téléphone
+		Adresse e-mail
+		Historique
+		Lieu (code MAP)
+		Agrément
+		Comment nous rejoindre
+		Adresse local
+		Contacts
+	Partenaires
+		Nom
+		Logo
+	Actualités
+		Titre
+		Description
+		Date de publication
+		Image
+	Equipe
+		Nom
+		Prenom
+		Fonction
+		Titre
+		Image
+	Candidat
+		Nom
+		Prenom
+		Photo
+		Date de naissance
+		Lieu de naissance
+		Contact
+		Adresse e-mail
+		Droit concours (boolean)
+		Id Dossier
+		estEleve
+	Dossiers
+		Id Type de dossier
+		Image
+		Fin de validité
+		Id Candidat
+		Descriptions
+	Type de dossier
+		Nom
+	Etudiant
+		id Candidat
+		Matricule
+		id Heure de Vol
+		Date obtention theorie
+		Id Aptitude
+		id Formation
+		id Promotion
+	Heure de Vol
+		Id Etudiant
+		duree
+		date
+		Appareil
+		Id Exercice
+	Type Exercice
+		Nom
+	Aptitude
+		Id Etudiant
+		Image
+		Date visite medical
+		Fin de validité
+	Matieres
+		Nom
+		Coefficient
+		Nombre de séance/mois
+		Id Formation
+	Pointage
+		id Matiere
+		id Etudiant
+		Date séance
+		Heure séance
+	Notes
+		Id Etudiant
+		Id Matiere
+		id Type Examen
+		Valeur
+		id Année scolaire
+	Type d'Examen
+		Nom
+	Année scolaire
+		Année debut
+		Année fin
+	Promotion
+		id AnnéeScolaire debut 
+		Id AnnéeScolaire Fin
+	Résultat
+		Nom
+		Appreciation
+		code couleur
