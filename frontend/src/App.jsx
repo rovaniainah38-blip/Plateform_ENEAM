@@ -8,7 +8,6 @@ const getApiItems = (response) => Array.isArray(response) ? response : response.
 const translations = {
   fr: {
     news: 'Actualités',
-    contact: 'Contact',
     search: 'Rechercher',
     home: 'Accueil',
     about: "L'établissement",
@@ -19,7 +18,7 @@ const translations = {
     join: 'Comment nous rejoindre',
     access: "Conditions d'accès",
     discover: "Découvrir l'ENEAM",
-    apply: 'Postuler en ligne',
+    elearning: 'E-LEARNING',
     heroKicker: "École Nationale d'Enseignement Aéronautique et Météorologique",
     heroTitle: 'Former les professionnels du ciel',
     heroText: "Un enseignement exigeant, humain et tourné vers les métiers de l'aéronautique.",
@@ -32,17 +31,6 @@ const translations = {
     formationsTitle: 'Des parcours pour prendre son envol',
     formationsText: "Explorez les formations qui ouvrent les portes de l'aéronautique.",
     formationCta: 'Voir la formation',
-    contactTitle: 'Parlons de votre projet',
-    contactText: 'Une question sur une formation ou une candidature ? Notre équipe vous répond.',
-    firstName: 'Prénom',
-    lastName: 'Nom',
-    phone: 'Téléphone',
-    email: 'Adresse e-mail',
-    gender: 'Genre',
-    choose: 'Choisir',
-    message: 'Votre message',
-    send: 'Envoyer le message',
-    selected: 'Formations qui vous intéressent',
     address: 'Adresse',
     slogan: 'Apprendre. S’envoler. Réussir.',
     quick: 'Accès rapide',
@@ -93,21 +81,6 @@ const staticFormations = [
   }
 ];
 
-const staticNews = [
-  {
-    id_actualite: 'news-2026-1',
-    date_publication: 'Juin 2026',
-    titre: "Mise en conformité et récupération officielle de l'agrément ACM",
-    description: "Après un processus rigoureux de restructuration interne et de mise en conformité, l'ENEAM a officiellement récupéré son agrément en juin 2026, sécurisant ainsi la reprise totale de ses activités pédagogiques et de ses vols d'entraînement."
-  },
-  {
-    id_actualite: 'news-2026-2',
-    date_publication: 'Avril 2026',
-    titre: "Suspension temporaire et audit de mise aux normes",
-    description: "En avril 2026, l'ACM avait temporairement suspendu l'agrément de formation de l'école après des audits signalant des non-conformités administratives et pédagogiques, engageant l'école dans un plan d'action correctif immédiat."
-  }
-];
-
 const staticPartnersCategories = [
   {
     category: "1. Partenaires Institutionnels et Réglementaires",
@@ -140,16 +113,32 @@ function App() {
   const [partners, setPartners] = useState([]);
   const [conditions, setConditions] = useState([]);
   
-  // États dynamiques
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef(null);
+
+  const fullTitle = translations[language].heroTitle;
+  const [typedTitle, setTypedTitle] = useState('');
+
+  useEffect(() => {
+    let timer;
+    if (typedTitle.length < fullTitle.length) {
+      timer = setTimeout(() => {
+        setTypedTitle(fullTitle.slice(0, typedTitle.length + 1));
+      }, 90);
+    } else {
+      timer = setTimeout(() => {
+        setTypedTitle('');
+      }, 2500);
+    }
+
+    return () => clearTimeout(timer);
+  }, [typedTitle, fullTitle]);
 
   const text = translations[language];
   const establishment = information || {};
   const mapUrl = "https://www.google.com/maps/search/?api=1&query=ENEAM+Ivato+A%C3%A9roport+Antananarivo";
 
-  // Fonction pour mettre en pause / lire la vidéo
   const togglePlayVideo = () => {
     if (videoRef.current) {
       if (isPlaying) {
@@ -178,7 +167,7 @@ function App() {
         if (partnerResponse.ok) setPartners(getApiItems(await partnerResponse.json()));
         if (conditionResponse.ok) setConditions(getApiItems(await conditionResponse.json()));
       } catch (error) {
-        // Mode dégradé si le serveur backend n'est pas actif
+        // Mode dégradé si le backend est hors ligne
       }
     };
     load();
@@ -195,20 +184,18 @@ function App() {
       <div className="top-strip">
         <div className="container top-inner">
           <span>{establishment.numero_telephone || '+261 34 01 313 25 | +261 34 21 300 94'}</span>
-          <span style={{ textTransform: 'lowercase' }}>eneam.mg</span>
+          <a href="https://eneam.mg" style={{ textTransform: 'lowercase', color: '#ffffff', textDecoration: 'none' }}>eneam.mg</a>
           <a href="#actualites">{text.news}</a>
-          <a href="#contact">{text.contact}</a>
         </div>
       </div>
 
       {/* EN-TÊTE PRINCIPAL */}
       <header className="main-header container">
-        <a className="brand" href="#accueil" aria-label="ENEAM accueil">
+        <a className="brand" href="https://eneam.mg" aria-label="ENEAM accueil">
           <img src="/images/logo-ENEAM-2.png" alt="ENEAM" />
           <span>ENEAM</span>
         </a>
 
-        {/* Navigation principale responsive */}
         <nav className={`main-nav ${mobileMenuOpen ? 'nav-open' : ''}`} aria-label="Menu principal">
           <a href="#accueil" onClick={() => setMobileMenuOpen(false)}>{text.home}</a>
           <a href="#etablissement" onClick={() => setMobileMenuOpen(false)}>{text.about}</a>
@@ -219,6 +206,14 @@ function App() {
         </nav>
 
         <div className="header-actions">
+          <a 
+            href="https://elearning.eneam.mg" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="red-button"
+          >
+            + {text.elearning}
+          </a>
           <button 
             className="menu-button" 
             aria-label="Menu" 
@@ -226,7 +221,6 @@ function App() {
           >
             {mobileMenuOpen ? '✕' : '☰'}
           </button>
-          <button className="red-button" onClick={() => scrollTo('contact')}>{text.apply}</button>
         </div>
       </header>
 
@@ -246,7 +240,10 @@ function App() {
           
           <div className="container hero-content">
             <p className="eyebrow">{text.heroKicker}</p>
-            <h1>{text.heroTitle}</h1>
+            <h1 className="typewriter-title">
+              {typedTitle}
+              <span className="typewriter-cursor">|</span>
+            </h1>
             <p className="hero-copy">{text.heroText}</p>
             
             <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -254,7 +251,6 @@ function App() {
                 {text.discover} <span>→</span>
               </button>
               
-              {/* Bouton Symbole Pause / Play pour la vidéo */}
               <button 
                 onClick={togglePlayVideo} 
                 className="video-control-btn"
@@ -313,12 +309,11 @@ function App() {
               <span className="stamp">✓</span>
               <h3>Organisme Agréé ACM</h3>
               <p>L'ENEAM est un organisme de formation agréé par l'Aviation Civile de Madagascar (ACM) garantissant une qualification aux normes mondiales.</p>
-              <a href="#contact" onClick={() => scrollTo('contact')}>{text.contact} <span>↗</span></a>
             </div>
           </div>
         </section>
 
-        {/* SECTION ÉQUIPE */}
+        {/* SECTION ÉQUIPE (MIVELATRA / FULL WIDTH) */}
         <section className="team-section">
           <div className="container">
             <div className="section-heading">
@@ -326,7 +321,6 @@ function App() {
                 <p className="eyebrow dark">02 / {text.team}</p>
                 <h2>Les visages qui vous accompagnent</h2>
               </div>
-              <a className="text-link" href="#contact" onClick={() => scrollTo('contact')}>{text.contact} <span>↗</span></a>
             </div>
             <div className="team-video">
               <img src="/images/air_madagascar.png" alt="Avion ENEAM" />
@@ -359,9 +353,6 @@ function App() {
                       </li>
                     ))}
                   </ul>
-                  <a href="#contact" onClick={() => scrollTo('contact')} style={{ fontWeight: 'bold', color: '#e63946', textDecoration: 'none' }}>
-                    {text.formationCta} <span>→</span>
-                  </a>
                 </article>
               ))}
             </div>
@@ -376,9 +367,8 @@ function App() {
               <h2>Votre prochaine altitude commence ici.</h2>
               <p className="large-copy">{establishment.comment_nous_rejoindre || text.join}</p>
               <div className="path-links">
-                <a href="#contact" onClick={() => scrollTo('contact')}><span>01</span>{text.join}<b>↗</b></a>
-                <a href="#conditions"><span>02</span>{text.access}<b>↗</b></a>
-                <a href="#contact" onClick={() => scrollTo('contact')}><span>03</span>{text.apply}<b>↗</b></a>
+                <a href="#conditions"><span>01</span>{text.access}<b>↗</b></a>
+                <a href="https://elearning.eneam.mg" target="_blank" rel="noopener noreferrer"><span>02</span>{text.elearning}<b>↗</b></a>
               </div>
               <div id="conditions" className="conditions-list">
                 {conditions.slice(0, 6).map((item) => <p key={item.numero}>✓ {item.condition}</p>)}
@@ -396,84 +386,29 @@ function App() {
             <div className="section-heading">
               <div>
                 <p className="eyebrow dark">05 / {text.news}</p>
-                <h2>🛑 Actualité et Régulation</h2>
+                <h2>Actualités</h2>
               </div>
-              <a className="text-link" href="#contact" onClick={() => scrollTo('contact')}>Toutes les actualités <span>↗</span></a>
             </div>
 
             <div className="news-grid" style={{ display: 'grid', gap: '1.5rem', marginTop: '2rem' }}>
-              {staticNews.map((item, index) => (
-                <article className="news-card" key={item.id_actualite} style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '8px', borderLeft: index === 0 ? '4px solid #2a9d8f' : '4px solid #e76f51', textAlign: 'left' }}>
-                  <div className={`news-image news-image-${index % 3}`} />
-                  <div className="news-meta" style={{ marginTop: '1rem', fontWeight: 'bold', color: '#e63946' }}>
-                    {item.date_publication} <span>/</span> ENEAM
-                  </div>
-                  <h3 style={{ fontSize: '1.2rem', margin: '0.5rem 0' }}>{item.titre}</h3>
-                  <p style={{ fontSize: '0.95rem', lineHeight: '1.5', color: '#4a5568' }}>{item.description}</p>
-                  <a href="#contact" onClick={() => scrollTo('contact')}>{text.read} <span>↗</span></a>
-                </article>
-              ))}
-
-              {news.length > 0 && news.map((item, index) => (
+              {news.length > 0 ? news.map((item, index) => (
                 <article className="news-card" key={item.id_actualite || index}>
                   <div className={`news-image news-image-${index % 3}`} />
                   <div className="news-meta">{item.date_publication} <span>/</span> ENEAM</div>
                   <h3>{item.titre}</h3>
                   <p>{item.description}</p>
-                  <a href="#contact" onClick={() => scrollTo('contact')}>{text.read} <span>↗</span></a>
                 </article>
-              ))}
+              )) : (
+                <p style={{ color: '#4a5568' }}>{text.noNews}</p>
+              )}
             </div>
-          </div>
-        </section>
-
-        {/* SECTION CONTACT */}
-        <section className="contact-section" id="contact">
-          <div className="container contact-grid">
-            <div className="contact-intro">
-              <p className="eyebrow">06 / CONTACT</p>
-              <h2>{text.contactTitle}</h2>
-              <p>{text.contactText}</p>
-              <div className="contact-details">
-                <span>{text.phone}</span><strong>{establishment.numero_telephone || '+261 34 01 313 25 | +261 34 21 300 94'}</strong>
-                <span>{text.email}</span><strong style={{ textTransform: 'lowercase' }}>eneam.mg</strong>
-                <span>{text.address}</span><strong>Ivato Aéroport, Antananarivo, Madagascar</strong>
-              </div>
-            </div>
-            <form className="contact-form" onSubmit={(event) => event.preventDefault()}>
-              <div className="form-row">
-                <label>{text.gender}
-                  <select defaultValue="">
-                    <option value="" disabled>{text.choose}</option>
-                    <option>Madame</option>
-                    <option>Monsieur</option>
-                  </select>
-                </label>
-                <label>{text.lastName}<input required /></label>
-                <label>{text.firstName}<input required /></label>
-              </div>
-              <div className="form-row">
-                <label>{text.phone}<input type="tel" /></label>
-                <label>{text.email}<input type="email" required /></label>
-              </div>
-              <fieldset>
-                <legend>{text.selected}</legend>
-                {staticFormations.map((item) => (
-                  <label className="check-label" key={item.id}>
-                    <input type="checkbox" /> <span>{item.nom}</span>
-                  </label>
-                ))}
-              </fieldset>
-              <label>{text.message}<textarea rows="4" /></label>
-              <button className="red-button submit-button" type="submit">{text.send} <span>↗</span></button>
-            </form>
           </div>
         </section>
 
         {/* SECTION PARTENARIAT */}
         <section className="partners-section" id="partenariat">
           <div className="container partners-inner">
-            <p className="eyebrow dark">07 / {text.partners}</p>
+            <p className="eyebrow dark">06 / {text.partners}</p>
             <h2>Des liens solides pour aller plus loin.</h2>
             
             <div className="partners-categories-grid" style={{ display: 'grid', gap: '2rem', marginTop: '2rem', textAlign: 'left' }}>
@@ -505,7 +440,33 @@ function App() {
         </section>
       </main>
 
-      {/* PIED DE PAGE */}
+      {/* BOUTON FLOTTANT E-LEARNING */}
+      <a 
+        href="https://elearning.eneam.mg" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="floating-elearning-btn"
+        title="Accéder à la plateforme E-Learning"
+      >
+        <div className="floating-elearning-icon">
+          <svg 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2.3" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <span className="floating-elearning-title">E-LEARNING</span>
+      </a>
+
+      {/* PIED DE PAGE (FOOTER) */}
       <footer>
         <div className="container footer-grid">
           <div className="footer-brand">
@@ -517,10 +478,9 @@ function App() {
             <a href="#accueil">{text.home}</a>
             <a href="#etablissement">{text.about}</a>
             <a href="#formations">{text.training}</a>
-            <a href="#contact">{text.contact}</a>
           </div>
           <div>
-            <p className="footer-title">CONTACT ENEAM</p>
+            <p className="footer-title">ENEAM</p>
             <p>Ivato Aéroport, Antananarivo</p>
             <p>{establishment.numero_telephone || '+261 34 01 313 25 | +261 34 21 300 94'}</p>
           </div>
@@ -529,15 +489,47 @@ function App() {
             <a href={mapUrl} target="_blank" rel="noreferrer">{text.map} ↗</a>
           </div>
         </div>
+        
         <div className="container footer-bottom">
           <span>© ENEAM. {text.rights}</span>
-          <span>Instagram &nbsp; / &nbsp; Facebook &nbsp; / &nbsp; LinkedIn</span>
+          
+          <div className="social-links">
+           <div className="social-links">
+  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-link">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+    </svg>
+    <span>INSTAGRAM</span>
+  </a>
+  
+  <span className="social-sep">/</span>
+
+  <a 
+    href="https://www.facebook.com/eneam.mada" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    className="social-link facebook-link"
+  >
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+    </svg>
+    <span>FACEBOOK</span>
+  </a>
+
+  <span className="social-sep">/</span>
+
+  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-link">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+    </svg>
+    <span>LINKEDIN</span>
+  </a>
+</div>
+          </div>
         </div>
       </footer>
-
-      <a className="floating-apply" href="#contact" onClick={() => scrollTo('contact')}>
-        <span>✦</span>{text.apply}
-      </a>
     </div>
   );
 }
