@@ -106,13 +106,42 @@ const staticPartnersCategories = [
   }
 ];
 
+// Actualités statiques (affichées même si le backend est hors ligne)
+// Les images sont à placer dans public/images/
+const staticNews = [
+  {
+    id: 'modernisation',
+    titre: 'Projets de modernisation',
+    date_publication: 'Septembre 2026',
+    images: ['/images/piste-decollage.png'],
+    points: [
+      {
+        label: 'Transition vers le e-learning',
+        texte: "En septembre 2026, la direction a lancé une consultation pour étudier la digitalisation de ses infrastructures pédagogiques, ouvrant la voie à des options d'apprentissage à distance."
+      }
+    ]
+  },
+  {
+    id: 'rayonnement',
+    titre: 'Rayonnement régional',
+    date_publication: 'Septembre 2026',
+    images: ['/images/pilotes-drapeau.png', '/images/pilote-cessna.png'],
+    points: [
+      {
+        label: 'Attractivité internationale',
+        texte: "L'école consolide son rôle de pôle aéronautique dans l'océan Indien en accueillant de nouvelles promotions comprenant un nombre croissant d'étudiants étrangers, attirés par des programmes alignés sur les normes de l'Organisation de l'aviation civile internationale (OACI)."
+      }
+    ]
+  }
+];
+
 function App() {
   const [language] = useState('fr');
   const [news, setNews] = useState([]);
   const [information, setInformation] = useState(null);
   const [partners, setPartners] = useState([]);
   const [conditions, setConditions] = useState([]);
-  
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef(null);
@@ -138,6 +167,9 @@ function App() {
   const text = translations[language];
   const establishment = information || {};
   const mapUrl = "https://www.google.com/maps/search/?api=1&query=ENEAM+Ivato+A%C3%A9roport+Antananarivo";
+
+  // Actualités statiques + actualités venant de l'API
+  const allNews = [...staticNews, ...news];
 
   const togglePlayVideo = () => {
     if (videoRef.current) {
@@ -206,17 +238,17 @@ function App() {
         </nav>
 
         <div className="header-actions">
-          <a 
-            href="https://elearning.eneam.mg" 
-            target="_blank" 
-            rel="noopener noreferrer" 
+          <a
+            href="https://elearning.eneam.mg"
+            target="_blank"
+            rel="noopener noreferrer"
             className="red-button"
           >
             + {text.elearning}
           </a>
-          <button 
-            className="menu-button" 
-            aria-label="Menu" 
+          <button
+            className="menu-button"
+            aria-label="Menu"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? '✕' : '☰'}
@@ -227,17 +259,17 @@ function App() {
       <main>
         {/* SECTION HERO / ACCUEIL */}
         <section className="hero" id="accueil">
-          <video 
+          <video
             ref={videoRef}
-            className="hero-video" 
-            src="/videos/eneam.mp4" 
-            autoPlay 
-            muted 
-            loop 
-            playsInline 
+            className="hero-video"
+            src="/videos/eneam.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
           />
           <div className="hero-overlay" />
-          
+
           <div className="container hero-content">
             <p className="eyebrow">{text.heroKicker}</p>
             <h1 className="typewriter-title">
@@ -245,14 +277,14 @@ function App() {
               <span className="typewriter-cursor">|</span>
             </h1>
             <p className="hero-copy">{text.heroText}</p>
-            
+
             <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
               <button className="white-button" onClick={() => scrollTo('formations')}>
                 {text.discover} <span>→</span>
               </button>
-              
-              <button 
-                onClick={togglePlayVideo} 
+
+              <button
+                onClick={togglePlayVideo}
                 className="video-control-btn"
                 aria-label={isPlaying ? "Mettre en pause la vidéo" : "Lire la vidéo"}
                 title={isPlaying ? "Pause" : "Play"}
@@ -390,13 +422,31 @@ function App() {
               </div>
             </div>
 
-            <div className="news-grid" style={{ display: 'grid', gap: '1.5rem', marginTop: '2rem' }}>
-              {news.length > 0 ? news.map((item, index) => (
-                <article className="news-card" key={item.id_actualite || index}>
-                  <div className={`news-image news-image-${index % 3}`} />
+            <div className="news-grid" style={{ marginTop: '2rem' }}>
+              {allNews.length > 0 ? allNews.map((item, index) => (
+                <article className="news-card" key={item.id || item.id_actualite || index}>
+                  {/* Galerie d'images (actualités statiques) ou image par défaut (API) */}
+                  {item.images ? (
+                    <div className={`news-gallery gallery-${item.images.length}`}>
+                      {item.images.map((src, i) => (
+                        <img key={i} src={src} alt={item.titre} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className={`news-image news-image-${index % 3}`} />
+                  )}
+
                   <div className="news-meta">{item.date_publication} <span>/</span> ENEAM</div>
                   <h3>{item.titre}</h3>
-                  <p>{item.description}</p>
+
+                  {/* Points détaillés (statique) ou description simple (API) */}
+                  {item.points ? (
+                    item.points.map((p, i) => (
+                      <p key={i}><strong>{p.label} :</strong> {p.texte}</p>
+                    ))
+                  ) : (
+                    <p>{item.description}</p>
+                  )}
                 </article>
               )) : (
                 <p style={{ color: '#4a5568' }}>{text.noNews}</p>
@@ -410,7 +460,7 @@ function App() {
           <div className="container partners-inner">
             <p className="eyebrow dark">06 / {text.partners}</p>
             <h2>Des liens solides pour aller plus loin.</h2>
-            
+
             <div className="partners-categories-grid" style={{ display: 'grid', gap: '2rem', marginTop: '2rem', textAlign: 'left' }}>
               {staticPartnersCategories.map((cat, idx) => (
                 <div key={idx} className="partner-category-card" style={{ background: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', borderLeft: '4px solid #e63946' }}>
@@ -441,22 +491,22 @@ function App() {
       </main>
 
       {/* BOUTON FLOTTANT E-LEARNING */}
-      <a 
-        href="https://elearning.eneam.mg" 
-        target="_blank" 
-        rel="noopener noreferrer" 
+      <a
+        href="https://elearning.eneam.mg"
+        target="_blank"
+        rel="noopener noreferrer"
         className="floating-elearning-btn"
         title="Accéder à la plateforme E-Learning"
       >
         <div className="floating-elearning-icon">
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.3" 
-            strokeLinecap="round" 
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.3"
+            strokeLinecap="round"
             strokeLinejoin="round"
           >
             <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
@@ -489,44 +539,43 @@ function App() {
             <a href={mapUrl} target="_blank" rel="noreferrer">{text.map} ↗</a>
           </div>
         </div>
-        
+
         <div className="container footer-bottom">
           <span>© ENEAM. {text.rights}</span>
-          
+
+          {/* Un seul bloc social-links (le doublon a été supprimé) */}
           <div className="social-links">
-           <div className="social-links">
-  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-link">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-    </svg>
-    <span>INSTAGRAM</span>
-  </a>
-  
-  <span className="social-sep">/</span>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-link">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+              <span>INSTAGRAM</span>
+            </a>
 
-  <a 
-    href="https://www.facebook.com/eneam.mada" 
-    target="_blank" 
-    rel="noopener noreferrer" 
-    className="social-link facebook-link"
-  >
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-    </svg>
-    <span>FACEBOOK</span>
-  </a>
+            <span className="social-sep">/</span>
 
-  <span className="social-sep">/</span>
+            <a
+              href="https://www.facebook.com/eneam.mada"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-link facebook-link"
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+              <span>FACEBOOK</span>
+            </a>
 
-  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-link">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-    </svg>
-    <span>LINKEDIN</span>
-  </a>
-</div>
+            <span className="social-sep">/</span>
+
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-link">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+              </svg>
+              <span>LINKEDIN</span>
+            </a>
           </div>
         </div>
       </footer>
